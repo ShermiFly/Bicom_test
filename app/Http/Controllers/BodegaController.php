@@ -6,11 +6,11 @@ use App\Models\Bodega;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Validation\Rule;
-use App\Repositories\Interfaces\BodegaRepositoryInterface; // Importamos la interfaz correcta
+use App\Repositories\Interfaces\BodegaRepositoryInterface; 
 
 class BodegaController extends Controller
 {
-    // Almacenará la implementación del repositorio de Bodega (EloquentBodegaRepository).
+    
     protected BodegaRepositoryInterface $bodegaRepository;
 
     /**
@@ -29,14 +29,10 @@ class BodegaController extends Controller
      */
     public function index(Request $request)
     {
-        // En este ejemplo, el repositorio solo tiene getAll(). Si necesitas búsqueda/paginación,
-        // deberías modificar el método getAll() en BodegaRepositoryInterface y su implementación.
-        // Aquí pasamos el request, aunque no se usa directamente en la llamada al repositorio,
-        // es útil para mantener el estado de los filtros en Inertia.
+        
         $search = $request->input('search');
 
-        // Nota: Se usará getAll() ya que es el único método disponible en la interfaz actual.
-        // Si se necesita búsqueda, el repositorio debería implementarla.
+        
         $bodegas = $this->bodegaRepository->getAll();
 
         return Inertia::render('bodegas', [ // <-- Nombre del componente correcto

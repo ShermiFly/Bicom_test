@@ -12,7 +12,7 @@ class Vendedor extends Model
 
     /**
      * Indica si el modelo debe tener timestamps (created_at y updated_at).
-     * Lo ponemos en 'false' porque tu script SQL original no los incluía.
+     * 
      *
      * @var bool
      */

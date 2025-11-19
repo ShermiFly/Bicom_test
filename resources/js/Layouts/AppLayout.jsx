@@ -72,7 +72,7 @@ function SidebarSectionHeader({ isCollapsed, title }) {
   );
 }
 
-// Enlace simple (con soporte para badges)
+// Enlace simple
 function SidebarLink({ href, icon: Icon, label, isCollapsed, badgeText }) {
   const badgeColor = badgeText === "NUEVO" ? "bg-green-500 text-white" : "bg-red-600 text-white";
   return (
@@ -146,7 +146,6 @@ function SidebarCollapsible({ icon: Icon, label, isCollapsed, children }) {
         </Button>
       </CollapsibleTrigger>
       <CollapsibleContent className="pl-8 py-1 space-y-1 bg-black/20">
-        {/* Aquí puedes poner <SidebarSubLink> o <Button> simples */}
         {children}
       </CollapsibleContent>
     </Collapsible>

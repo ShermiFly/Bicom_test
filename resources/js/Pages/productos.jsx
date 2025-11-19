@@ -13,9 +13,9 @@ import {
 import { 
   ArrowUpDown, 
   MoreHorizontal, 
-  Search,
+  Search,// <--- BUSCADOR
   Plus,
-  AlertTriangleIcon // <--- NUEVO IMPORT
+  AlertTriangleIcon 
 } from "lucide-react"
 
 // Componentes de shadcn/ui
@@ -59,11 +59,25 @@ import {
 } from "@/components/ui/dialog"
 
 /**
- * Función de formateo de moneda
+ * Función de formateo de peso
  */
 const formatCurrency = (number) => {
-    if (isNaN(number)) return "$ 0";
-    return `$ ${new Number(number).toLocaleString('es-ES')}`;
+    // parseFloat intenta convertirlo a un número real flotante.
+    const value = parseFloat(number);
+
+    // Si el valor no es un número (ej: viene null o es un "texto"), 
+    // devolvemos "$ 0" para que la interfaz no se rompa mostrando "NaN".
+    if (isNaN(value)) return "$ 0";
+
+    // Creamos una instancia de Intl.NumberFormat configurada para Chile ('es-CL').
+    const formattedNumber = new Intl.NumberFormat('es-CL', {
+        style: 'decimal',  //da el número con formato, sin signos.
+        minimumFractionDigits: 0, //No queremos decimales.
+        maximumFractionDigits: 0, //Forzamos a redondear si hubiera decimales.
+    }).format(value);
+
+    // Tomamos el número y le pegamos manualmente el signo "$ ".
+    return `$ ${formattedNumber}`;
 };
 
 /**
@@ -96,9 +110,14 @@ export const columns = [
     ),
   },
   {
+    //Clave de acceso: Conecta esta columna con la propiedad "precio_neto"
     accessorKey: "precio_neto",
+    // Se usa esta función para retornar JSX y alinear el texto a la derecha
     header: () => <div className="text-right">P. Neto</div>,
+    // Desestructuramos { row } para acceder a los datos de la fila actual.
     cell: ({ row }) => {
+      // 1. Obtener el valor crudo de la columna "precio_neto".
+      // 2. parseFloat asegura que sea un número para evitar errores de formato.
       const amount = parseFloat(row.getValue("precio_neto"))
       return <div className="text-right font-medium h-16 flex items-center justify-end text-gray-700">{formatCurrency(amount)}</div>
     },
@@ -139,8 +158,11 @@ export const columns = [
   },
   {
     id: "actions",
+    // Esto evita que el usuario pueda ocultar esta columna desde el menú de "Vistas".
+    // Es importante para que los botones de editar/Borrar estén siempre visibles.
     enableHiding: false,
     cell: ({ row, table }) => { 
+      //row.original accede al OBJETO COMPLETO de la base de datos.
       const producto = row.original
 
       return (
@@ -161,13 +183,13 @@ export const columns = [
                 <DropdownMenuSeparator className="bg-gray-100" />
                 
                 <DropdownMenuItem 
+                    // 1. table.options.meta: Es un "bolsillo" especial donde guardamos funciones externas.
                     onClick={() => table.options.meta?.handleEdit(producto)}
                     className="cursor-pointer hover:bg-gray-50 focus:bg-gray-50 text-gray-700"
                 >
                     Editar Producto
                 </DropdownMenuItem>
                 
-                {/* MODIFICADO: Ahora llama a handleDelete desde meta */}
                 <DropdownMenuItem 
                     onClick={() => table.options.meta?.handleDelete(producto)}
                     className="cursor-pointer hover:bg-red-50 focus:bg-red-50 text-red-600 focus:text-red-600"
@@ -187,8 +209,13 @@ export const columns = [
  * Componente Principal
  */
 export default function Index({ auth, productos, filters }) {
+  // Accedemos a las props globales de la página (Shared Data).
+  // 'flash' contiene mensajes de éxito/error.
   const { flash } = usePage().props;
 
+  // Traemos 'paginator' y 'total' de "ProductoRepository"
+  // "|| {}": si 'productos' llega nulo, usa un objeto vacío 
+  // para que la página no se rompa.
   const { paginator, total } = productos || {};
   const { data = [], next_page_url, prev_page_url } = paginator || {};
 
@@ -209,7 +236,8 @@ export default function Index({ auth, productos, filters }) {
   const [productToDelete, setProductToDelete] = React.useState(null);
   const [isDeleting, setIsDeleting] = React.useState(false);
 
-  // Hook useForm de Inertia (SOLO PARA CREAR/EDITAR)
+  // useForm de Inertia
+  // Este hook maneja todo el ciclo de vida del formulario (estado, envío, errores, carga).
   const { data: formData, setData, post, put, processing, errors, reset, clearErrors } = useForm({
     id: '',
     codigo: '',
@@ -226,7 +254,8 @@ export default function Index({ auth, productos, filters }) {
     clearErrors();
     setIsOpen(true);
   };
-  
+
+  //MODAL DE EDICION DEL PRODUCTO
   const openEditModal = (producto) => {
     setIsEditing(true);
     clearErrors();
@@ -241,6 +270,7 @@ export default function Index({ auth, productos, filters }) {
     setIsOpen(true);
   };
 
+  //GUARDADO DEL PRODUCTO
   const handleSave = (e) => {
     e.preventDefault();
     if (isEditing) {
@@ -280,19 +310,29 @@ export default function Index({ auth, productos, filters }) {
   };
 
   // --- CONFIGURACION DEL BUSCADOR ---
+  // Este useEffect escucha cambios en la variable 'searchTerm' (lo que escribe el usuario).
   React.useEffect(() => {
+    // Creamos un temporizador. No enviamos la petición inmediatamente, esperamos 500ms.
     const delayDebounceFn = setTimeout(() => {
+      // 2. Validación para evitar búsquedas innecesarias:
+      // Solo buscamos si el texto actual es DIFERENTE al que ya viene filtrado desde Laravel.
+      // Esto evita que al cargar la página se dispare una búsqueda redundante.
       if (searchTerm !== (filters?.search || '')) {
          doSearch(searchTerm, statusFilter);
       }
-    }, 500);
+    }, 500); // Tiempo de espera: medio segundo tras dejar de escribir.
+
+    // Si el usuario escribe otra letra antes de que pasen los 500ms, 
+    // React ejecuta esto: cancela el temporizador anterior y empieza uno nuevo.
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm]);
 
   const doSearch = (search, status) => {
+    // Usamos el router de Inertia para hacer una petición GET (navegación)
     router.get(
-      route('productos.index'),
+      route('productos.index'), // URL destino (usando Ziggy en Laravel)
       { 
+        // Parámetros que se añaden a la URL
         search: search, 
         status: status === 'all' ? '' : status
       },

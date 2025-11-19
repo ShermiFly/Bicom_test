@@ -6,7 +6,7 @@ use App\Models\Vendedor;
 
 class VendedorRepository implements VendedorRepositoryInterface 
 {
-    // Modificamos para aceptar búsqueda y devolver paginación
+    
     public function getAllVendedores($search = null) 
     {
         $query = Vendedor::query();

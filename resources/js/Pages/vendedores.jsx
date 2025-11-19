@@ -153,7 +153,8 @@ export const columns = [
 /**
  * Componente Principal
  */
-export default function Index({ auth, vendedores }) {
+// 1. AGREGAMOS 'filters' A LAS PROPS
+export default function Index({ auth, vendedores, filters }) {
   const { flash } = usePage().props;
 
   // Manejo flexible de datos (si viene paginado o como array simple)
@@ -163,7 +164,33 @@ export default function Index({ auth, vendedores }) {
   // --- ESTADOS DE TABLA ---
   const [sorting, setSorting] = React.useState([])
   const [columnFilters, setColumnFilters] = React.useState([])
-  const [globalFilter, setGlobalFilter] = React.useState('')
+  
+  // 2. INICIALIZAMOS CON EL FILTRO QUE VIENE DEL SERVIDOR
+  const [globalFilter, setGlobalFilter] = React.useState(filters?.search || '')
+
+  // --- 3. LOGICA DEL BUSCADOR (MOTOR) ---
+  React.useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (globalFilter !== (filters?.search || '')) {
+        doSearch(globalFilter);
+      }
+    }, 500); // 500ms de espera
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [globalFilter]);
+
+  const doSearch = (search) => {
+    router.get(
+      route('vendedores.index'),
+      { search: search },
+      { 
+        preserveState: true,
+        preserveScroll: true,
+        replace: true 
+      }
+    );
+  };
+  // --------------------------------------
 
   // --- ESTADOS DEL DIALOG Y FORMULARIO ---
   const [isOpen, setIsOpen] = React.useState(false);

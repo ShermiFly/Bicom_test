@@ -23,14 +23,14 @@ class VendedorController extends Controller
     /**
      * Muestra una lista de todos los vendedores.
      */
-    public function index(Request $request) // Inyectamos Request
+    public function index(Request $request) 
     {
+        // 1. Capturamos el texto del buscador
         $search = $request->input('search');
 
-        return Inertia::render('vendedores', [
-            // Pasamos el término de búsqueda al repositorio
+        return Inertia::render('vendedores', [ 
+            // 2. Enviamos los vendedores filtrados
             'vendedores' => $this->vendedorRepository->getAllVendedores($search),
-            // Pasamos los filtros de vuelta al front para mantener el estado del input
             'filters' => $request->only(['search']),
         ]);
     }

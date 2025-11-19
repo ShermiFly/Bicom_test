@@ -172,7 +172,7 @@ export default function AppLayout({ children }) {
   return (
     <div className="flex h-screen bg-background">
       
-      {/* --- SIDEBAR ACTUALIZADO --- */}
+      {/* --- SIDEBAR --- */}
       <aside 
         className={`flex flex-col flex-shrink-0 ${menuBg} transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-20'}`}
       >
@@ -190,7 +190,7 @@ export default function AppLayout({ children }) {
           <SidebarLink href="#" icon={Box} label="Mi Stock" isCollapsed={!isSidebarOpen} />
           <SidebarLink href="#" icon={GraduationCap} label="Academia Bicom" isCollapsed={!isSidebarOpen} badgeText="NUEVO" />
 
-          <SidebarCollapsible icon={Warehouse} label="producto" isCollapsed={!isSidebarOpen}>
+          <SidebarCollapsible icon={Warehouse} label="Bodega" isCollapsed={!isSidebarOpen}>
             <SidebarSubLink href={route('productos.index')} label="Productos" />
           </SidebarCollapsible>
 

@@ -253,7 +253,7 @@ export default function AppLayout({ children }) {
             <span className="font-semibold">Bicom Test</span>
           </div>
 
-          {/* Sección Derecha: Iconos, Moneda y Perfil */}
+          {/* Sección Derecha: Iconos, Cambio de moneda y Perfil */}
           <div className="flex items-center gap-4">
             <Button variant="ghost" className="text-white hover:bg-white/10 hover:text-white">
               <HelpCircle className="mr-2 h-5 w-5" />

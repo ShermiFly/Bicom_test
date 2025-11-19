@@ -157,7 +157,7 @@ export const columns = [
 export default function Index({ auth, vendedores, filters }) {
   const { flash } = usePage().props;
 
-  // Manejo flexible de datos (si viene paginado o como array simple)
+
   const data = Array.isArray(vendedores) ? vendedores : (vendedores?.data || []);
   const { next_page_url, prev_page_url, total } = vendedores?.paginator || vendedores || {};
 
@@ -165,7 +165,7 @@ export default function Index({ auth, vendedores, filters }) {
   const [sorting, setSorting] = React.useState([])
   const [columnFilters, setColumnFilters] = React.useState([])
   
-  // 2. INICIALIZAMOS CON EL FILTRO QUE VIENE DEL SERVIDOR
+  // 2. INICIALIZAMOS CON EL FILTRO
   const [globalFilter, setGlobalFilter] = React.useState(filters?.search || '')
 
   // --- 3. LOGICA DEL BUSCADOR (MOTOR) ---
